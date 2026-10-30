@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0B1220">
+  <title>The Last Clue | Viimane vihje</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0B1220;
+      --surface: #152033;
+      --text: #F3F6FF;
+      --text-secondary: #BAC9DA;
+      --action-primary: #7BB1FF;
+      --action-hover: #A0C7FF;
+      --on-primary: #06111F;
+      --accent-surface: #58E0CB;
+      --on-accent: #06241F;
+      --surface-muted: #101A2B;
+      --surface-raised: #1D2B41;
+      --border: #7185A0;
+      --border-soft: #30415A;
+      --focus: #7BB1FF;
+      --success-surface: #173A2D;
+      --success-text: #A1E5B8;
+      --warning-surface: #3D3018;
+      --warning-text: #FFD178;
+      --error-surface: #3B1E29;
+      --error-text: #FFB0A8;
+      --info-surface: #192F42;
+      --info-text: #AADCF2;
+      --shadow-panel: 0 18px 38px rgb(0 0 0 / 24%), 0 2px 6px rgb(0 0 0 / 22%);
+      --system: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-family: var(--system);
+      font-size: 16px;
+      line-height: 1.5;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    button { font: inherit; }
+
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    .leht { width: min(1440px, 100%); margin: 0 auto; padding: 32px 24px 56px; }
+
+    .masthead {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .kaubamark { margin: 0 0 8px; color: var(--text-secondary); font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+    h1 { margin: 0; font: 36px/1.15 var(--system); font-weight: 750; }
+    .alapealkiri { margin: 8px 0 0; color: var(--text-secondary); font-size: 16px; }
+
+    .taimer {
+      min-width: 144px;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow-panel);
+      text-align: center;
+    }
+
+    .taimer-silt { display: block; color: var(--text-secondary); font-size: 14px; }
+    .taimer-aeg { display: block; color: var(--text); font-size: 24px; font-weight: 700; line-height: 1.25; font-variant-numeric: tabular-nums; }
+    .taimer.kiire { border-color: var(--error-text); background: var(--error-surface); }
+    .taimer.kiire .taimer-aeg { color: var(--error-text); }
+
+    .juhtumiriba {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: center;
+      margin: 24px 0 32px;
+      padding: 20px 24px;
+      border: 1px solid var(--border-soft);
+      border-inline-start: 4px solid var(--accent-surface);
+      background: var(--surface);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .juhtumiriba .silt { margin: 0 0 4px; color: var(--text-secondary); font-size: 14px; font-weight: 700; }
+    .juhtumiriba h2 { margin: 0; font-size: 24px; line-height: 1.2; }
+    .juhtumiriba p { max-width: 68ch; margin: 8px 0 0; color: var(--text-secondary); }
+    .juhtumi-number { color: var(--text-secondary); font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+
+    .paigutus { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .9fr) minmax(200px, .65fr); gap: 20px; align-items: start; }
+    .paigutus > section { min-width: 0; }
+    .jaotis-pealkiri { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 12px; margin: 0 0 16px; }
+    .jaotis-pealkiri h2 { margin: 0; color: var(--text); font-size: 24px; line-height: 1.2; }
+    .jaotis-pealkiri span { color: var(--text-secondary); font-size: 14px; }
+
+    .vihjete-ruudustik { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .vihje-ymbris { min-width: 0; }
+
+    .vihje-kaart {
+      display: block;
+      width: 100%;
+      min-height: 168px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--surface);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    .vihje-kaart:hover:not(:disabled) { border-color: var(--action-primary); background: var(--surface-raised); box-shadow: var(--shadow-panel); }
+    .vihje-kaart:disabled { cursor: default; }
+    .vihje-kaart.avatus { border-color: var(--action-primary); }
+    .vihje-number { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 14px; font-weight: 700; }
+    .vihje-olek { display: inline-flex; min-height: 28px; align-items: center; margin-bottom: 12px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 2px; color: var(--text-secondary); font-size: 14px; font-weight: 700; }
+    .vihje-olek.loetud { border-color: var(--info-text); background: var(--info-surface); color: var(--info-text); }
+    .vihje-olek.oluline { border-color: var(--on-accent); background: var(--accent-surface); color: var(--on-accent); }
+    .vihje-nimi { display: block; margin-bottom: 8px; font-size: 18px; font-weight: 700; line-height: 1.3; }
+    .vihje-sisu { display: block; color: var(--text-secondary); font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+    .nupp-markmik { width: 100%; margin-top: 8px; }
+
+    .markmik {
+      margin: 0;
+      padding: 16px;
+      border: 1px solid var(--border-soft);
+      border-top: 3px solid var(--accent-surface);
+      background: var(--surface-muted);
+    }
+
+    .markmik-pais { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 12px; }
+    .markmik-pais h2 { margin: 0; font-size: 20px; line-height: 1.2; }
+    .markmik-loendur { color: var(--text-secondary); font-size: 14px; }
+    .markmik-abi { margin: 8px 0 0; color: var(--text-secondary); font-size: 16px; }
+    .markmik-nimekiri { display: grid; gap: 12px; margin: 12px 0 0; padding: 0; list-style: none; }
+    .markmik-kirje { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border-soft); }
+    .markmik-tekst { margin: 0; color: var(--text); font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+
+    .kahtlusaluste-nimekiri { display: grid; gap: 14px; }
+    .kahtlusalune {
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid var(--border-soft);
+      border-radius: 3px;
+      background: var(--surface);
+      box-shadow: var(--shadow-panel);
+      transition: border-color 140ms ease, box-shadow 140ms ease;
+    }
+
+    .kahtlusalune.valitud { border: 2px solid var(--action-primary); padding: 15px; box-shadow: inset 4px 0 var(--accent-surface), var(--shadow-panel); }
+    .kahtlusalune-pais { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .kahtlusalune h3 { margin: 0; font-size: 20px; line-height: 1.2; }
+    .amet { margin: 4px 0 0; color: var(--text-secondary); font-size: 14px; }
+    .valitud-silt { min-height: 28px; color: transparent; font-size: 14px; font-weight: 700; text-align: right; }
+    .kahtlusalune.valitud .valitud-silt { height: auto; padding: 2px 8px; border-radius: 2px; background: var(--action-primary); color: var(--on-primary); }
+    .kirjeldus { margin: 12px 0 8px; color: var(--text); font-size: 16px; }
+    .motiiv { margin: 0; color: var(--text-secondary); font-size: 16px; }
+    .motiiv strong { color: var(--text); font-weight: 700; }
+    .kahtlusalune-tegevused { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+
+    .nupp {
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+    }
+
+    .nupp:hover:not(:disabled) { border-color: var(--action-primary); background: var(--surface-raised); }
+    .nupp-valik { border-color: var(--border); }
+    .nupp-valik[aria-pressed="true"] { border-color: var(--action-primary); background: var(--action-primary); color: var(--on-primary); }
+    .nupp-kusitle { color: var(--text); }
+    .nupp-esita { border-color: var(--action-primary); background: var(--action-primary); color: var(--on-primary); }
+    .nupp-esita:hover:not(:disabled) { border-color: var(--action-hover); background: var(--action-hover); color: var(--on-primary); }
+    .nupp-uuesti { border-color: var(--action-primary); }
+    .nupp:disabled { border-color: var(--border); background: var(--surface-muted); color: var(--text-secondary); cursor: not-allowed; }
+    .nupp-eemalda { border-color: var(--border); color: var(--text); }
+
+    .utlus {
+      margin: 16px 0 0;
+      padding: 14px 16px;
+      border-inline-start: 3px solid var(--info-text);
+      background: var(--info-surface);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .utlus[hidden] { display: none; }
+    .skoori-reeglid { margin-top: 20px; padding: 16px; border-inline-start: 4px solid var(--accent-surface); background: var(--surface); color: var(--text); font-size: 16px; }
+    .skoori-reeglid strong { color: var(--text); }
+    .skoori-reeglid p { max-width: 65ch; margin: 4px 0 0; color: var(--text-secondary); }
+    .skoori-tulemus { padding-top: 10px; border-top: 1px solid var(--border-soft); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .otsuse-riba { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 18px; padding: 16px; border: 1px solid var(--border); background: var(--surface-muted); }
+    .valiku-meeldetuletus { flex: 1 1 200px; margin: 0; color: var(--text-secondary); font-size: 16px; }
+
+    .lopp { margin-top: 20px; padding: 20px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow-panel); }
+    .lopp[hidden] { display: none; }
+    .lopp.edu { border-color: var(--success-text); background: var(--success-surface); }
+    .lopp.viga { border-color: var(--error-text); background: var(--error-surface); }
+    .lopp.aeg { border-color: var(--warning-text); background: var(--warning-surface); }
+    .lopp h2 { margin: 0 0 8px; color: var(--text); font-size: 24px; line-height: 1.2; }
+    .lopp p { max-width: 70ch; margin: 0 0 12px; color: var(--text); font-size: 16px; overflow-wrap: anywhere; }
+    .lopp p.lopp-olek { max-width: none; padding: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 700; }
+    .lopp p.skoori-tulemus { color: var(--text); }
+    .lopp .nupp { margin-top: 4px; }
+
+    .jalus { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border-soft); color: var(--text-secondary); font-size: 14px; }
+
+    @media (max-width: 1000px) {
+      .paigutus { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    }
+
+    @media (max-width: 600px) {
+      .leht { padding: 20px 16px 40px; }
+      .masthead { align-items: flex-start; flex-direction: column; gap: 16px; }
+      h1 { font-size: 30px; }
+      .taimer { display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left; }
+      .jaotis-pealkiri { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .juhtumiriba { grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 16px; }
+      .juhtumi-number { order: -1; }
+      .vihjete-ruudustik { grid-template-columns: minmax(0, 1fr); }
+      .vihje-kaart { min-height: 0; }
+      .kahtlusalune-pais { flex-wrap: wrap; }
+      .markmik-kirje .nupp { width: 100%; }
+      .kahtlusalune-tegevused { flex-direction: column; }
+      .kahtlusalune-tegevused .nupp { width: 100%; }
+      .otsuse-riba { align-items: stretch; }
+      .otsuse-riba .nupp { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="leht">
+    <header class="masthead">
+      <div>
+        <p class="kaubamark">THE LAST CLUE · JUHTUM 014</p>
+        <h1>Viimane vihje</h1>
+        <p class="alapealkiri">Öövahtide muuseum · toimik on avatud</p>
+      </div>
+      <div class="taimer" id="taimer" role="timer" aria-label="Aega otsuse tegemiseks">
+        <span class="taimer-silt">AEGA OTSUSENI</span>
+        <span class="taimer-aeg" id="taimer-aeg">05:00</span>
+      </div>
+    </header>
+
+    <section class="juhtumiriba" aria-labelledby="juhtumi-pealkiri">
+      <div>
+        <p class="silt">JUHTUMI KOKKUVÕTE</p>
+        <h2 id="juhtumi-pealkiri">Kadunud „Hommikune laht”</h2>
+        <p>Öise elektrikatkestuse ajal kadus Öövahtide muuseumi suletud galeriist hinnaline maal. Uks ei olnud jõuga avatud ja kadunud teost pole hoonest välja viidud. Leia, kes maali peitis, enne kui toimik sulgub.</p>
+      </div>
+      <span class="juhtumi-number">18. OKTOOBER · 21:07</span>
+    </section>
+
+    <div class="paigutus">
+      <section aria-labelledby="vihjed-pealkiri">
+        <div class="jaotis-pealkiri">
+          <h2 id="vihjed-pealkiri">Uurimistoimik</h2>
+          <span id="vihjete-loendur">Avatud vihjeid: 0 / 5</span>
+        </div>
+        <div class="vihjete-ruudustik" id="vihjete-ruudustik"></div>
+      </section>
+
+      <section aria-labelledby="kahtlusalused-pealkiri">
+        <div class="jaotis-pealkiri">
+          <h2 id="kahtlusalused-pealkiri">Kahtlusalused</h2>
+          <span>Vali ja kuula üle</span>
+        </div>
+        <div class="kahtlusaluste-nimekiri" id="kahtlusaluste-nimekiri"></div>
+        <div class="skoori-reeglid" aria-labelledby="skoori-reeglite-pealkiri">
+          <strong id="skoori-reeglite-pealkiri">Punktiarvestus · kuni 100 punkti</strong>
+          <p>Õige otsus annab 50 punkti. Kiiruse eest saad 1 punkti iga allesjäänud 10 sekundi eest (kuni 30); iga avatud vihje annab 4 punkti (kuni 20). Vale otsus annab 0 otsusepunkti.</p>
+        </div>
+        <div class="otsuse-riba">
+          <p class="valiku-meeldetuletus" id="valiku-meeldetuletus">Süüdistuse esitamiseks vali kahtlusalune.</p>
+          <button class="nupp nupp-esita" id="esita-suudistus" type="button" disabled>Esita süüdistus</button>
+        </div>
+        <section class="lopp" id="lopp" aria-live="assertive" tabindex="-1" hidden></section>
+      </section>
+
+      <section class="markmik" aria-labelledby="markmiku-pealkiri">
+        <div class="markmik-pais">
+          <h2 id="markmiku-pealkiri">Märkmik</h2>
+          <span class="markmik-loendur" id="markmiku-loendur">Märkmeid: 0</span>
+        </div>
+        <p class="markmik-abi" id="markmiku-abi">Ava vihje ja lisa oluline tõend siia.</p>
+        <ul class="markmik-nimekiri" id="markmiku-nimekiri" aria-label="Märkmikku lisatud vihjed"></ul>
+      </section>
+    </div>
+
+    <footer class="jalus">ÖÖVAHTIDE MUUSEUM · SISEMINE JUURDLUS · HOIA TOIMIKUT SALADUSES</footer>
+  </main>
+
+  <script>
+    const juhtum = {
+      suudlane: "maarja",
+      vihjed: [
+        {
+          pealkiri: "Katkestuse logi",
+          tekst: "Galeriivalve lülitus välja kell 21:07. Lukku ei lõhutud. Teenindusukse logis on Maarja kaart kell 21:14, kuigi ta märkis oma päevikusse, et lahkus muuseumist enne üheksat."
+        },
+        {
+          pealkiri: "Raami serv",
+          tekst: "Tühja raami tagaküljel on värske mesilasvahakiht. Sama vaha kasutatakse muuseumi restaureerimistöökojas raamide kaitseks."
+        },
+        {
+          pealkiri: "Koridori tunnistaja",
+          tekst: "Öövaht kuulis katkestuse ajal restaureerimistiiva poolt rasket kärukolksu. Maarja sõnul polnud ta pärast sulgemist ühtegi käru liigutanud."
+        },
+        {
+          pealkiri: "Sinine kinnas",
+          tekst: "Leena töökindalt leiti galerii lähedalt sinist pigmenti. See näib teda süüdistavat, kuid sama pigmenti kasutati õhtul kõrvalsaali näidistahvli märgistamisel."
+        },
+        {
+          pealkiri: "Parandamata päevik",
+          tekst: "Maali seisundi päevikus on parandatud kuupäev ja kustutatud märge lõuendi rebendi kohta. Muudatuse initsiaalid on M. V. Maarja möönis, et kandis selle sisse, kuid väitis, et rebend oli vana."
+        }
+      ],
+      kahtlusalused: [
+        {
+          id: "maarja",
+          nimi: "Maarja Vaher",
+          amet: "Restauraator",
+          kirjeldus: "Töötas maaliga enne selle kadumist ja tunneb muuseumi teeninduskäike.",
+          motiiv: "Võis varjata enda põhjustatud lõuendikahjustust ja võltsitud seisundipäevikut.",
+          loppSelgitus: "Teenindusukse logi näitab tema kaarti kell 21:14, vastuolus väitega, et ta lahkus enne üheksat. Värske mesilasvaha ja kärukolks viitavad restaureerimistiivale; päeviku muudatuse initsiaalid M. V. seovad tõendid tema motiiviga.",
+          kusitlus: [
+            {
+              kusimus: "Millal te muuseumist lahkusite?",
+              vastus: "Lahkusin enne üheksat. Pärast seda pole ma teenindusust kasutanud."
+            },
+            {
+              kusimus: "Kes muutis maali seisundipäeviku kuupäeva?",
+              vastus: "Mina parandasin kuupäeva. Rebend tundus vana ja pärast tööpäeva ma maali juurde ei läinud."
+            }
+          ]
+        },
+        {
+          id: "leena",
+          nimi: "Leena Kask",
+          amet: "Peakuraator",
+          kirjeldus: "Vastutab kogu kunstikogu ja järgmise näituse valiku eest.",
+          motiiv: "Võis maali eemaldada, et asendada see kindlustuse jaoks odavama koopiaga.",
+          loppSelgitus: "Sinine pigment kindal ja võimalik kindlustusmotiiv tegid Leena kahtlaseks. Pigmenti kasutati aga kõrvalsaali näidistahvli märgistamisel ning ükski muu vihje ei seo teda teenindusukse logi ega restaureerimistiivaga.",
+          kusitlus: [
+            {
+              kusimus: "Miks oli teie kindal sinist pigmenti?",
+              vastus: "Kasutasin seda kõrvalsaali näidistahvli märgistamiseks. Töö lõpetasin kell üheksa."
+            },
+            {
+              kusimus: "Kas teil oli põhjus maal eemaldada?",
+              vastus: "Ei. Maal oli järgmise näituse nimekirjas ja ma ei tahtnud seda asendada."
+            }
+          ]
+        },
+        {
+          id: "rasmus",
+          nimi: "Rasmus Tamm",
+          amet: "Öövaht",
+          kirjeldus: "Tundis hoone turvasüsteemi ja jäi elektrikatkestuse ajal üksi valvesse.",
+          motiiv: "Võis maali müüa, sest tema suur võlg tuli samal nädalal tasuda.",
+          loppSelgitus: "Rasmuse valvealased teadmised ja võlg annavad talle võimaliku motiivi, kuid tõendid ei seo teda maaliga. Teenindusukse logis on Maarja kaart, restaureerimistöökoja vaha ning päevikumuudatuse M. V. initsiaalid osutavad Maarjale.",
+          kusitlus: [
+            {
+              kusimus: "Kus te elektrikatkestuse ajal olite?",
+              vastus: "Olin valvepuldist eemal ja kontrollisin pimedaks jäänud saali ust."
+            },
+            {
+              kusimus: "Mida te katkestuse ajal kuulsite?",
+              vastus: "Kärurataste kolksu restaureerimistiiva poolt. Kedagi ma ei näinud."
+            }
+          ]
+        }
+      ]
+    };
+
+    const vihjeteRuudustik = document.getElementById("vihjete-ruudustik");
+    const markmikuLoendur = document.getElementById("markmiku-loendur");
+    const markmikuAbi = document.getElementById("markmiku-abi");
+    const markmikuNimekiri = document.getElementById("markmiku-nimekiri");
+    const kahtlusalusteNimekiri = document.getElementById("kahtlusaluste-nimekiri");
+    const vihjeteLoendur = document.getElementById("vihjete-loendur");
+    const valikuMeeldetuletus = document.getElementById("valiku-meeldetuletus");
+    const esitaSüüdistus = document.getElementById("esita-suudistus");
+    const taimer = document.getElementById("taimer");
+    const taimerAeg = document.getElementById("taimer-aeg");
+    const lopp = document.getElementById("lopp");
+    const alustamiseNupp = document.createElement("button");
+    alustamiseNupp.className = "nupp nupp-uuesti";
+    alustamiseNupp.type = "button";
+    alustamiseNupp.textContent = "Alusta uuesti";
+    alustamiseNupp.hidden = true;
+
+    let avatudVihjed = new Set();
+    let markmikuVihjed = new Set();
+    let valitudKahtlusalune = null;
+    let utlusedAvatud = new Set();
+    let sekundeid = 300;
+    let skooriJaotus = null;
+    let mangLabi = false;
+    let taimeriId;
+
+    function looVihjed() {
+      vihjeteRuudustik.replaceChildren();
+      juhtum.vihjed.forEach((vihje, indeks) => {
+        const ymbris = document.createElement("div");
+        ymbris.className = "vihje-ymbris";
+        const nupp = document.createElement("button");
+        const onAvatud = avatudVihjed.has(indeks);
+        const onMarkmikus = markmikuVihjed.has(indeks);
+        const vihjeOlek = onMarkmikus ? "Oluline" : onAvatud ? "Loetud" : "Avamata";
+        nupp.type = "button";
+        nupp.className = `vihje-kaart${onAvatud ? " avatus" : ""}`;
+        nupp.disabled = mangLabi;
+        nupp.setAttribute("aria-expanded", String(onAvatud));
+        nupp.setAttribute("aria-label", onAvatud ? `${vihje.pealkiri}. ${vihjeOlek}` : `Ava vihje ${indeks + 1}: ${vihje.pealkiri}. ${vihjeOlek}`);
+
+        const number = document.createElement("span");
+        number.className = "vihje-number";
+        number.textContent = `TÕEND ${String(indeks + 1).padStart(2, "0")}`;
+        const olekuSilt = document.createElement("span");
+        olekuSilt.className = `vihje-olek${onMarkmikus ? " oluline" : onAvatud ? " loetud" : " avamata"}`;
+        olekuSilt.textContent = vihjeOlek;
+        const pealkiri = document.createElement("span");
+        pealkiri.className = "vihje-nimi";
+        pealkiri.textContent = onAvatud ? vihje.pealkiri : "Ava toimikukaart";
+        const tekst = document.createElement("span");
+        tekst.className = "vihje-sisu";
+        tekst.textContent = onAvatud ? vihje.tekst : "Klõpsa, et tõend üle vaadata.";
+        nupp.append(number, olekuSilt, pealkiri, tekst);
+        ymbris.append(nupp);
+        nupp.addEventListener("click", () => {
+          if (mangLabi || avatudVihjed.has(indeks)) return;
+          avatudVihjed.add(indeks);
+          looVihjed();
+          uuendaVihjeteLoendur();
+          vihjeteRuudustik.children[indeks].querySelector(".vihje-kaart").focus();
+        });
+        if (onAvatud) {
+          const markmikuNupp = document.createElement("button");
+          markmikuNupp.className = "nupp nupp-markmik";
+          markmikuNupp.type = "button";
+          markmikuNupp.textContent = onMarkmikus ? "Märkmikus" : "Lisa märkmikku";
+          markmikuNupp.disabled = mangLabi || onMarkmikus;
+          markmikuNupp.setAttribute("aria-label", `${onMarkmikus ? "Vihje on juba märkmikus" : "Lisa vihje märkmikku"}: ${vihje.pealkiri}`);
+          markmikuNupp.addEventListener("click", () => {
+            if (mangLabi || markmikuVihjed.has(indeks)) return;
+            markmikuVihjed.add(indeks);
+            looVihjed();
+            looMarkmik();
+            const kirje = Array.from(markmikuNimekiri.children).find((element) => element.dataset.vihjeIndeks === String(indeks));
+            kirje?.querySelector(".nupp-eemalda")?.focus();
+          });
+          ymbris.append(markmikuNupp);
+        }
+        vihjeteRuudustik.append(ymbris);
+      });
+    }
+
+    function looMarkmik() {
+      markmikuNimekiri.replaceChildren();
+      markmikuLoendur.textContent = `Märkmeid: ${markmikuVihjed.size}`;
+      markmikuAbi.hidden = markmikuVihjed.size > 0;
+      Array.from(markmikuVihjed).sort((esimene, teine) => esimene - teine).forEach((indeks) => {
+        const vihje = juhtum.vihjed[indeks];
+        const kirje = document.createElement("li");
+        kirje.className = "markmik-kirje";
+        kirje.dataset.vihjeIndeks = String(indeks);
+        const kirjeTekst = document.createElement("p");
+        kirjeTekst.className = "markmik-tekst";
+        kirjeTekst.textContent = `${String(indeks + 1).padStart(2, "0")} · ${vihje.pealkiri}: ${vihje.tekst}`;
+        const eemaldaNupp = document.createElement("button");
+        eemaldaNupp.className = "nupp nupp-eemalda";
+        eemaldaNupp.type = "button";
+        eemaldaNupp.textContent = "Eemalda";
+        eemaldaNupp.disabled = mangLabi;
+        eemaldaNupp.setAttribute("aria-label", `Eemalda märkmikust: ${vihje.pealkiri}`);
+        eemaldaNupp.addEventListener("click", () => {
+          if (mangLabi) return;
+          markmikuVihjed.delete(indeks);
+          looMarkmik();
+          looVihjed();
+          vihjeteRuudustik.children[indeks].querySelector(".nupp-markmik")?.focus();
+        });
+        kirje.append(kirjeTekst, eemaldaNupp);
+        markmikuNimekiri.append(kirje);
+      });
+    }
+
+    function looKahtlusalused() {
+      kahtlusalusteNimekiri.replaceChildren();
+      juhtum.kahtlusalused.forEach((isik) => {
+        const kaart = document.createElement("article");
+        kaart.className = `kahtlusalune${valitudKahtlusalune === isik.id ? " valitud" : ""}`;
+        const pais = document.createElement("div");
+        pais.className = "kahtlusalune-pais";
+        const andmed = document.createElement("div");
+        const nimi = document.createElement("h3");
+        nimi.textContent = isik.nimi;
+        const amet = document.createElement("p");
+        amet.className = "amet";
+        amet.textContent = isik.amet;
+        andmed.append(nimi, amet);
+        const valitudSilt = document.createElement("span");
+        valitudSilt.className = "valitud-silt";
+        valitudSilt.textContent = valitudKahtlusalune === isik.id ? "VALITUD" : "";
+        pais.append(andmed, valitudSilt);
+
+        const kirjeldus = document.createElement("p");
+        kirjeldus.className = "kirjeldus";
+        kirjeldus.textContent = isik.kirjeldus;
+        const motiiv = document.createElement("p");
+        motiiv.className = "motiiv";
+        const motiiviSilt = document.createElement("strong");
+        motiiviSilt.textContent = "Võimalik motiiv: ";
+        motiiv.append(motiiviSilt, document.createTextNode(isik.motiiv));
+
+        const tegevused = document.createElement("div");
+        tegevused.className = "kahtlusalune-tegevused";
+        const valiNupp = document.createElement("button");
+        valiNupp.className = "nupp nupp-valik";
+        valiNupp.type = "button";
+        valiNupp.textContent = "Vali kahtlusaluseks";
+        valiNupp.disabled = mangLabi;
+        valiNupp.setAttribute("aria-pressed", String(valitudKahtlusalune === isik.id));
+        valiNupp.addEventListener("click", () => {
+          if (mangLabi) return;
+          valitudKahtlusalune = isik.id;
+          looKahtlusalused();
+          uuendaValikut();
+          const kahtlusaluseIndeks = juhtum.kahtlusalused.findIndex((kahtlusalune) => kahtlusalune.id === isik.id);
+          kahtlusalusteNimekiri.children[kahtlusaluseIndeks].querySelector(".nupp-valik").focus();
+        });
+
+        const kusitleNupp = document.createElement("button");
+        kusitleNupp.className = "nupp nupp-kusitle";
+        kusitleNupp.type = "button";
+        kusitleNupp.textContent = "Küsitle";
+        kusitleNupp.disabled = mangLabi;
+        kusitleNupp.setAttribute("aria-expanded", String(utlusedAvatud.has(isik.id)));
+        kusitleNupp.addEventListener("click", () => {
+          if (mangLabi) return;
+          if (utlusedAvatud.has(isik.id)) utlusedAvatud.delete(isik.id);
+          else utlusedAvatud.add(isik.id);
+          looKahtlusalused();
+          const kahtlusaluseIndeks = juhtum.kahtlusalused.findIndex((kahtlusalune) => kahtlusalune.id === isik.id);
+          kahtlusalusteNimekiri.children[kahtlusaluseIndeks].querySelector(".nupp-kusitle").focus();
+        });
+        tegevused.append(valiNupp, kusitleNupp);
+
+        const utlus = document.createElement("div");
+        utlus.className = "utlus";
+        utlus.hidden = !utlusedAvatud.has(isik.id);
+        isik.kusitlus.forEach((paar, indeks) => {
+          const vastuseRida = document.createElement("p");
+          vastuseRida.className = "utluse-rida";
+          const kusimus = document.createElement("strong");
+          kusimus.textContent = `Küsimus ${indeks + 1}: ${paar.kusimus}`;
+          const vastus = document.createElement("span");
+          vastus.textContent = `Vastus: „${paar.vastus}”`;
+          vastuseRida.append(kusimus, document.createElement("br"), vastus);
+          utlus.append(vastuseRida);
+        });
+        kaart.append(pais, kirjeldus, motiiv, tegevused, utlus);
+        kahtlusalusteNimekiri.append(kaart);
+      });
+    }
+
+    function uuendaVihjeteLoendur() {
+      vihjeteLoendur.textContent = `Avatud vihjeid: ${avatudVihjed.size} / ${juhtum.vihjed.length}`;
+    }
+
+    function uuendaValikut() {
+      esitaSüüdistus.disabled = mangLabi || valitudKahtlusalune === null;
+      const valitud = juhtum.kahtlusalused.find((isik) => isik.id === valitudKahtlusalune);
+      valikuMeeldetuletus.textContent = valitud
+        ? `Valitud kahtlusalune: ${valitud.nimi}.`
+        : "Süüdistuse esitamiseks vali kahtlusalune.";
+    }
+
+    function uuendaTaimerit() {
+      const minutid = Math.floor(sekundeid / 60).toString().padStart(2, "0");
+      const sekundid = (sekundeid % 60).toString().padStart(2, "0");
+      taimerAeg.textContent = `${minutid}:${sekundid}`;
+      taimer.classList.toggle("kiire", sekundeid <= 30 && minutid === "00");
+    }
+
+    function arvutaSkoor(otsusOige) {
+      if (skooriJaotus !== null) return skooriJaotus;
+      const otsusePunktid = otsusOige ? 50 : 0;
+      const kiirusePunktid = Math.min(30, Math.floor(sekundeid / 10));
+      const vihjetePunktid = Math.min(20, avatudVihjed.size * 4);
+      const summa = Math.max(0, Math.min(100, otsusePunktid + kiirusePunktid + vihjetePunktid));
+      skooriJaotus = { summa, otsusePunktid, kiirusePunktid, vihjetePunktid };
+      return skooriJaotus;
+    }
+
+    function kuvaLopp(pealkiri, seletus, klass, otsusOige = false) {
+      if (mangLabi) return;
+      mangLabi = true;
+      clearInterval(taimeriId);
+      const punktid = arvutaSkoor(otsusOige);
+      lopp.className = `lopp ${klass}`;
+      lopp.replaceChildren();
+      const pealkirjaElement = document.createElement("h2");
+      pealkirjaElement.textContent = pealkiri;
+      const seletuseElement = document.createElement("p");
+      seletuseElement.textContent = seletus;
+      lopp.append(pealkirjaElement, seletuseElement);
+      const valitud = juhtum.kahtlusalused.find((isik) => isik.id === valitudKahtlusalune);
+      const minutidAlles = Math.floor(sekundeid / 60).toString().padStart(2, "0");
+      const sekundidAlles = (sekundeid % 60).toString().padStart(2, "0");
+      let otsuseKokkuvote = "Otsust ei esitatud.";
+      if (valitud) {
+        otsuseKokkuvote = klass === "aeg"
+          ? `Valik: ${valitud.nimi}; süüdistust ei esitatud.`
+          : `Esitatud süüdistus: ${valitud.nimi}.`;
+      }
+      const loppOlek = document.createElement("p");
+      loppOlek.className = "lopp-olek";
+      loppOlek.textContent = `Aega jäi ${minutidAlles}:${sekundidAlles} · ${otsuseKokkuvote}`;
+      lopp.append(loppOlek);
+      const skooriKokkuvote = document.createElement("p");
+      skooriKokkuvote.className = "skoori-tulemus";
+      skooriKokkuvote.textContent = `Skoor: ${punktid.summa} / 100 · otsus ${punktid.otsusePunktid}/50 · kiirus ${punktid.kiirusePunktid}/30 · vihjed ${punktid.vihjetePunktid}/20`;
+      lopp.append(skooriKokkuvote);
+      if (valitud) {
+        const valikuSelgitus = document.createElement("p");
+        valikuSelgitus.textContent = `Valitud kahtlusalune, ${valitud.nimi}: ${valitud.loppSelgitus}`;
+        lopp.append(valikuSelgitus);
+      }
+      const lahendus = document.createElement("p");
+      lahendus.textContent = "Juhtumi lahendus: Maarja peitis maali restaureerimistiiva konservaatoriruumi, et varjata enda tekitatud rebendit ja päeviku võltsimist. Teenindusukse logi näitab tema kaarti kell 21:14, värske mesilasvaha pärineb restaureerimistöökojast ning tunnistaja kuulis kärukolksu samast tiivast. Parandatud kuupäev ja M. V. initsiaalid toetavad tema motiivi. Leena sinine pigment on eksitav vihje: seda kasutati kõrvalsaali näidistahvli märgistamiseks, seega ei tõenda see maali käsitsemist.";
+      lopp.append(lahendus);
+      lopp.append(alustamiseNupp);
+      lopp.hidden = false;
+      looVihjed();
+      looMarkmik();
+      looKahtlusalused();
+      uuendaValikut();
+      alustamiseNupp.hidden = false;
+      lopp.focus();
+    }
+
+    esitaSüüdistus.addEventListener("click", () => {
+      if (mangLabi || sekundeid <= 0 || valitudKahtlusalune === null) return;
+      if (valitudKahtlusalune === juhtum.suudlane) {
+        kuvaLopp("Süüdistus peab paika", "Maarja tunnistab üles. Maal leitakse konservaatoriruumist ja muuseum saab selle enne hommikut tagasi.", "edu", true);
+      } else {
+        const nimi = juhtum.kahtlusalused.find((isik) => isik.id === valitudKahtlusalune).nimi;
+        kuvaLopp("Vale süüdistus", `${nimi} vabastatakse. Tegelik varas jõuab katkestuse segaduses maaliga muuseumist välja ning juhtum jääb lahendamata.`, "viga");
+      }
+    });
+
+    alustamiseNupp.addEventListener("click", () => {
+      clearInterval(taimeriId);
+      avatudVihjed = new Set();
+      markmikuVihjed = new Set();
+      valitudKahtlusalune = null;
+      utlusedAvatud = new Set();
+      sekundeid = 300;
+      skooriJaotus = null;
+      mangLabi = false;
+      lopp.hidden = true;
+      lopp.className = "lopp";
+      alustamiseNupp.hidden = true;
+      uuendaTaimerit();
+      uuendaVihjeteLoendur();
+      looVihjed();
+      looMarkmik();
+      looKahtlusalused();
+      uuendaValikut();
+      taimeriId = setInterval(tiksu, 1000);
+    });
+
+    function tiksu() {
+      if (mangLabi) return;
+      sekundeid = Math.max(0, sekundeid - 1);
+      uuendaTaimerit();
+      if (sekundeid === 0) {
+        kuvaLopp("Aeg sai otsa", "Viis minutit möödus. Toimik sulgub ja uut süüdistust esitada ei saa.", "aeg");
+      }
+    }
+
+    looVihjed();
+    looKahtlusalused();
+    uuendaTaimerit();
+    uuendaVihjeteLoendur();
+    looMarkmik();
+    uuendaValikut();
+    taimeriId = setInterval(tiksu, 1000);
+  </script>
+</body>
+</html>
